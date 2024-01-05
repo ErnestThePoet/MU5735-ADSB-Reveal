@@ -15,5 +15,5 @@
   - `Time Points(No ALT)` 起飞、巡航阶段飞行轨迹部分时间点，无高度
   - `Time Points(ALT)` 坠落阶段部分时间点和高度，带高度
   - `G Points` 坠落阶段部分时间点和垂直过载，带高度
-- `NavData-AIRAC2311-N17E73-N55E145.kml` AIRAC 2311导航数据的Google Earth KML，仅包含N17E73-N55E145以内的部分，使用本人[PMDGNav2Kml](https://github.com/ErnestThePoet/PMDGNav2Kml)脚本从PMDG格式导航数据中导出
+- `NavData-AIRAC2311-N17E73-N55E145.kml` Navigraph AIRAC Cycle 2311导航数据的Google Earth KML，仅包含N17E73-N55E145以内的部分，使用本人[PMDGNav2Kml](https://github.com/ErnestThePoet/PMDGNav2Kml)脚本从PMDG格式导航数据中导出
 - `crc_collision.py` 文章中寻找`DF=5`的Mode S报文CRC冲突的脚本代码
