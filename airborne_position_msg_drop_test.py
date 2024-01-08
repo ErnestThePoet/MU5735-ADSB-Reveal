@@ -60,25 +60,70 @@ adsb_sequence = generate_adsb_sequence(actual_positions)
 def decode_pos(test_name: str, ignored_msg_indexes: set[int] = None):
     print(test_name)
 
-    used_adsb_sequence_index: list[tuple[str, int]] = []
+    last_even_msg = ""
+    last_odd_msg = ""
 
-    for i, sequence in enumerate(adsb_sequence):
+    start_index = 1
+    for i in range(len(adsb_sequence)):
         if ignored_msg_indexes and i in ignored_msg_indexes:
             continue
 
-        used_adsb_sequence_index.append((sequence, i))
+        if pms.hex2bin(adsb_sequence[i])[53] == "0":
+            last_even_msg = adsb_sequence[i]
+        else:
+            last_odd_msg = adsb_sequence[i]
 
-    for i in range(1, len(used_adsb_sequence_index)):
-        ref_pos = pms.adsb.airborne_position(
-            used_adsb_sequence_index[i - 1][0], used_adsb_sequence_index[i][0], 0, 1)
-        print(f"C{used_adsb_sequence_index[i][1] + 1}={ref_pos} "
-              f"D={distance.distance(ref_pos, actual_positions[used_adsb_sequence_index[i][1]]).m:.03f}m")
+        start_index = i + 1
 
-    print()
+        break
+
+    for i in range(start_index, len(adsb_sequence)):
+        if ignored_msg_indexes and i in ignored_msg_indexes:
+            continue
+
+        if pms.hex2bin(adsb_sequence[i])[53] == "0":
+            last_even_msg = adsb_sequence[i]
+            if last_odd_msg == "":
+                continue
+            selected_msg = last_odd_msg
+        else:
+            last_odd_msg = adsb_sequence[i]
+            if last_even_msg == "":
+                continue
+            selected_msg = last_even_msg
+
+        calculated_pos = pms.adsb.airborne_position(selected_msg, adsb_sequence[i], 0, 1)
+
+        if i == len(adsb_sequence) - 1:
+            dist = distance.distance(calculated_pos, actual_positions[i]).m
+            print(f"C{i + 1}={calculated_pos} D={dist:.03f}m")
+            print()
+            return dist
 
 
-decode_pos("No dropped messages")
-decode_pos("Drop 2 messages", {7, 8})
-decode_pos("Drop 4 messages", {5, 6, 7, 8})
-decode_pos("Drop 6 messages", {3, 4, 5, 6, 7, 8})
-decode_pos("Drop 8 messages", {1, 2, 3, 4, 5, 6, 7, 8})
+# decode_pos("No dropped messages")
+
+min_dist = 10000
+max_dist = 0
+min_dist_drop_desc = ""
+max_dist_drop_desc = ""
+
+for i in range(1 << 6):
+    ignored_msg_indexes: set[int] = set()
+    for j in range(6):
+        if i & (1 << j):
+            ignored_msg_indexes.add(j + 3)
+
+    test_name = "{}" if len(ignored_msg_indexes) == 0 else str(ignored_msg_indexes)
+
+    dist = decode_pos(test_name, ignored_msg_indexes)
+    if dist > max_dist:
+        max_dist = dist
+        max_dist_drop_desc = test_name
+
+    if dist < min_dist:
+        min_dist = dist
+        min_dist_drop_desc = test_name
+
+print(f"Min dist for C10: {min_dist:.3f}m when dropping {min_dist_drop_desc}")
+print(f"Max dist for C10: {max_dist:.3f}m when dropping {max_dist_drop_desc}")
