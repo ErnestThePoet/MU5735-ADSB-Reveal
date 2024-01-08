@@ -60,23 +60,25 @@ adsb_sequence = generate_adsb_sequence(actual_positions)
 def decode_pos(test_name: str, ignored_msg_indexes: set[int] = None):
     print(test_name)
 
-    ref_pos = pms.adsb.airborne_position(adsb_sequence[0], adsb_sequence[1], 0, 1)
+    used_adsb_sequence_index: list[tuple[str, int]] = []
 
-    print(f"C2={ref_pos} D={distance.distance(ref_pos, actual_positions[1]).m:.03f}m")
-
-    for i, msg in enumerate(adsb_sequence[2:]):
-        if ignored_msg_indexes and i + 2 in ignored_msg_indexes:
+    for i, sequence in enumerate(adsb_sequence):
+        if ignored_msg_indexes and i in ignored_msg_indexes:
             continue
 
-        ref_pos = pms.adsb.airborne_position_with_ref(msg, ref_pos[0], ref_pos[1])
-        print(f"C{i + 3}={ref_pos} D={distance.distance(ref_pos, actual_positions[i + 2]).m:.03f}m")
+        used_adsb_sequence_index.append((sequence, i))
+
+    for i in range(1, len(used_adsb_sequence_index)):
+        ref_pos = pms.adsb.airborne_position(
+            used_adsb_sequence_index[i - 1][0], used_adsb_sequence_index[i][0], 0, 1)
+        print(f"C{used_adsb_sequence_index[i][1] + 1}={ref_pos} "
+              f"D={distance.distance(ref_pos, actual_positions[used_adsb_sequence_index[i][1]]).m:.03f}m")
 
     print()
 
 
 decode_pos("No dropped messages")
-decode_pos("Drop 1 message", {8})
 decode_pos("Drop 2 messages", {7, 8})
-decode_pos("Drop 3 messages", {6, 7, 8})
 decode_pos("Drop 4 messages", {5, 6, 7, 8})
-decode_pos("Drop 7 messages", {2, 3, 4, 5, 6, 7, 8})
+decode_pos("Drop 6 messages", {3, 4, 5, 6, 7, 8})
+decode_pos("Drop 8 messages", {1, 2, 3, 4, 5, 6, 7, 8})
