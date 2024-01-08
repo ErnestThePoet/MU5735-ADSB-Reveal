@@ -17,3 +17,4 @@
   - `G Points` 坠落阶段部分时间点和垂直过载，带高度
 - `NavData-AIRAC2311-N17E73-N55E145.kml` Navigraph AIRAC Cycle 2311导航数据的Google Earth KML，仅包含N17E73-N55E145以内的部分，使用本人[PMDGNav2Kml](https://github.com/ErnestThePoet/PMDGNav2Kml)脚本从PMDG格式导航数据中导出
 - `crc_collision.py` 文章中寻找`DF=5`的Mode S报文CRC冲突的脚本代码
+- `airborne_position_msg_drop_test.py` 文章中进行`Airborne position`ADS-B报文丢帧试验的脚本代码
