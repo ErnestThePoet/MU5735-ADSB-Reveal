@@ -8,16 +8,16 @@ collision_values: dict[str, list[str]] = {}
 
 fs_dr_um_valid_values: list[str] = []
 
-for fs in map(lambda x: bin(x)[2:].zfill(3), range(0, 1 << 3)):
+for fs in map(lambda x: bin(x)[2:].zfill(3), range(1 << 3)):
     for dr in ("00000", "00001", "00100", "00101"):
-        for um in map(lambda x: bin(x)[2:].zfill(6), range(0, 1 << 6)):
+        for um in map(lambda x: bin(x)[2:].zfill(6), range(1 << 6)):
             fs_dr_um_valid_values.append(fs + dr + um)
 
 for fs_dr_um_2101 in fs_dr_um_valid_values:
     df5_2101_template_hex = pms.bin2hex(df5_2101_template.format(fs_dr_um_2101))
     crc_df5_2101 = pms.crc(df5_2101_template_hex)
 
-    for fs_dr_um_0463 in map(lambda x: bin(x)[2:].zfill(14), range(0, 1 << 14)):
+    for fs_dr_um_0463 in map(lambda x: bin(x)[2:].zfill(14), range(1 << 14)):
         df5_0463_template_hex = pms.bin2hex(df5_0463_template.format(fs_dr_um_0463))
         crc_df5_0463 = pms.crc(df5_0463_template_hex)
 
